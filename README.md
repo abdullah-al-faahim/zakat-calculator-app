@@ -61,7 +61,7 @@
 | 📖 **কুরআন-হাদিস** | ৪০টির বেশি আয়াত ও হাদিস — মূল আরবি, বাংলা ও ইংরেজি অর্থ, হাদিসের মান (সহীহ/হাসান/দুর্বল) |
 | ❓ **প্রশ্ন ও উত্তর** | গহনা, প্রভিডেন্ট ফান্ড, প্লট-ফ্ল্যাট, শেয়ার, সুদের টাকা, আগের বছরের বাকি যাকাত… |
 | 🌙 **লাইট ও ডার্ক থিম** | ফোনের মতো, লাইট বা ডার্ক — সেটিংস থেকে |
-| 🔄 **নিজে থেকে আপডেট** | নতুন সংস্করণ এলে অ্যাপেই জানিয়ে দেয়, এক ট্যাপে আপডেট |
+| 🔄 **আপডেটের খবর** | নতুন সংস্করণ এলে অ্যাপেই জানিয়ে দেয়, এক ট্যাপে ডাউনলোড |
 | 🔒 **গোপনীয়তা** | আপনার সব তথ্য শুধু আপনার ফোনেই থাকে; কোনো অ্যাকাউন্ট বা বিজ্ঞাপন নেই |
 
 ## ইনস্টল করার নিয়ম
@@ -71,7 +71,9 @@
 3. ফোন "অজানা উৎস থেকে ইনস্টল" করার অনুমতি চাইলে **সেটিংস** থেকে অনুমতি দিন, তারপর ফিরে এসে **ইনস্টল** চাপুন।
 4. ইনস্টল হয়ে গেলে "যাকাত ক্যালকুলেটর" খুলুন। ব্যস!
 
-> **আপডেট:** একবার ইনস্টল করলে এরপর নতুন সংস্করণ এলে অ্যাপই আপনাকে জানাবে। তখন অ্যাপের ভেতর থেকেই আপডেট করা যাবে, আনইনস্টল করতে হবে না।
+> **Play Protect সতর্কতা দেখালে:** অ্যাপটি এখনো Google Play-তে নেই বলে নতুন অ্যাপ হিসেবে Play Protect মাঝে মাঝে সতর্ক করতে পারে। অ্যাপটি শুধু ইন্টারনেটের অনুমতি নেয়, আর কোনো অনুমতি নয়। **আরও বিস্তারিত › তবুও ইনস্টল করুন** চেপে ইনস্টল করতে পারেন। ফাইলটি আসল কি না মেলাতে প্রতিটি রিলিজে SHA-256 দেওয়া থাকে।
+
+> **আপডেট:** নতুন সংস্করণ এলে অ্যাপই আপনাকে জানাবে। "এখনই আপডেট করুন" চাপলে ব্রাউজারে ফাইলটি নামবে; সেটি খুলে আপডেট করুন। আনইনস্টল করতে হবে না, আপনার হিসাব থেকে যাবে।
 >
 > **আগের ওয়েবভিউ সংস্করণ (v1) থাকলে:** নতুনটি ইনস্টলের আগে পুরোনোটি আনইনস্টল করে নিন।
 
@@ -111,9 +113,9 @@
 - **Hanafi nisab rules**, explained: 7.5 tola if you own only gold, otherwise the value of 52.5 tola of silver.
 - **Separate calculators** for crops (ushr), livestock (full hadith tables) and fitra (2026 Islamic Foundation rates).
 - **40+ Quran verses and hadith** in Arabic with Bangla and English meanings and hadith grades, verified against Tanzil and sunnah.com.
-- **Light and dark themes**, **in-app updates**, and **complete privacy**: everything stays on your phone.
+- **Light and dark themes**, **update notifications**, and **complete privacy**: everything stays on your phone. The only permission is internet access.
 
-**Install:** tap the download button, open the `.apk`, allow "install unknown apps" if Android asks, then install. Future updates arrive inside the app.
+**Install:** tap the download button, open the `.apk`, allow "install unknown apps" if Android asks, then install. If Play Protect warns about an unrecognised app (the app is not on Google Play yet), tap **More details › Install anyway**; each release lists the APK's SHA-256 so you can check it. The app tells you when a new version is out and opens the download in your browser.
 
 > ⚠️ For general guidance only. For complex cases, please consult a qualified mufti.
 

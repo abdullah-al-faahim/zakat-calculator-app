@@ -1,6 +1,6 @@
 # Privacy policy — Zakat Calculator (যাকাত ক্যালকুলেটর)
 
-*Effective 29 October 2026 · applies to app version 3.0.0 and later*
+*Effective 29 October 2026 · applies to app version 3.0.1 and later*
 
 **In short:** none of your financial information leaves your phone. There are no accounts, no ads, no analytics
 and no tracking.
@@ -12,7 +12,6 @@ and no tracking.
 | Amounts you enter, gold/silver weights, your zakat (hawl) date | On your phone only | Encrypted with AES-256-GCM; the key is kept in Android Keystore | Until you delete it or uninstall the app |
 | Language, theme, calculation method, weight unit | On your phone only | Private to the app; contains no amounts | Until you delete it or uninstall the app |
 | Last fetched gold/silver rates | On your phone only | Private to the app | Replaced on each fetch |
-| Downloaded update file | App cache on your phone | Private to the app | Replaced on the next update |
 
 None of this is included in Android cloud backup or device-to-device transfer.
 
@@ -25,7 +24,8 @@ No name, phone number, email, location, contacts or device identifiers. No adver
 The app connects to the internet only to:
 
 1. read today's gold and silver rates from **bajus.org**, and
-2. check **github.com** for a new app version and download it (you can turn off automatic checks in Settings).
+2. check **github.com** for a new app version (you can turn off automatic checks in Settings). The update itself
+   is downloaded by your browser when you tap *Update now*; the app never installs anything itself.
 
 These requests contain none of your data. All connections use HTTPS (TLS 1.2 or higher). Like any website,
 those servers can see your IP address. Their own privacy policies apply.
@@ -35,8 +35,7 @@ only the record ID and app version, and nothing is sent unless you submit it you
 
 ## Permissions
 
-- **Internet:** for rates and update checks.
-- **Install apps:** used only when you choose to install an update, to hand the downloaded, verified update to Android's installer. Android asks you before anything is installed.
+- **Internet:** for rates and update checks. This is the only permission the app asks for.
 
 ## Your control
 
