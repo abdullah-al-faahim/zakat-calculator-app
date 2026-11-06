@@ -84,7 +84,10 @@ async function main() {
     return;
   }
   var res = await fetch(PAGE_URL, { headers: { 'User-Agent': 'ZakatCalculator-PriceBot (+https://github.com/abdullah-al-faahim/zakat-calculator-app)' }, redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (!res.ok) {
+    var body = (await res.text()).replace(/\s+/g, ' ').slice(0, 160);
+    throw new Error('HTTP ' + res.status + ' (server: ' + res.headers.get('server') + ', cf-ray: ' + res.headers.get('cf-ray') + ') ' + body);
+  }
   var html = await res.text();
   if (html.length > 2 * 1024 * 1024) throw new Error('page too large');
   var next = validate(parse(html, previous), todayInDhaka());
