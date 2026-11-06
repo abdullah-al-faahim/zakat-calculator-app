@@ -16,8 +16,8 @@ authoritative source.
 
 ## Supported versions
 
-Only the latest release receives fixes. The app checks for updates itself (Settings › App updates) and opens the
-new APK in the browser; it never downloads or installs packages itself.
+Only the latest release receives fixes. The app checks for updates itself (Settings › App updates) and can
+download the new APK with Android's download manager; it never installs packages itself.
 
 ## How the app protects your data
 
@@ -33,7 +33,7 @@ This follows the project's security protocol (OWASP MASVS for the mobile app).
 - **Network:** HTTPS only, enforced in code and by the network security config. TLS 1.2+ on every socket, system CAs only (user-installed CAs are not trusted), a host allow-list (bajus.org, github.com and its download CDN), redirects checked hop by hop, and response size limits. Requests carry no user data.
 - **Certificate pinning:** the app has no API of its own, so there is nothing of ours to pin. Third-party hosts (BAJUS, GitHub) rotate certificates outside our control, so pinning them would break the app without a rotation plan we can own. If an own backend is ever added, it must be pinned, with a documented backup-key rotation plan.
 - **Prices:** responses are validated for type, range, karat ordering and date (not in the future, not older than 45 days). Rejected responses keep the last good value. The source, rate date and fetch time are always shown, and manual prices are labelled.
-- **Updates:** the check reads `version.json` only from the allowed GitHub hosts, and the APK link must point to one of them. The app holds no install permission and contains no installer code (a unit test enforces this), so it cannot install anything. Android itself refuses an update signed with a different key, and the SHA-256 of every APK is published in `version.json` and the release notes.
+- **Updates:** the check reads `version.json` only from the allowed GitHub hosts, and the APK link must point to one of them. The APK is downloaded to Downloads by Android's download manager and must match the SHA-256 in `version.json`, or it is deleted. The app holds no install permission and contains no installer code (a unit test enforces this), so it cannot install anything: the user opens the file and Android installs it. Android itself refuses an update signed with a different key. On Android 8 and 9, which need a storage permission for this, the download opens in the browser instead.
 - **Input validation:** every number is parsed as a decimal with range and length limits. Malformed input is rejected and stored values are clamped.
 - **Release builds:** not debuggable, minified with R8, all `android.util.Log` calls stripped, signed with a key kept outside the repository.
 - **Device risk signal:** rooted devices get a one-time, non-blocking warning.

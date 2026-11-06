@@ -1,6 +1,6 @@
 # Privacy policy — Zakat Calculator (যাকাত ক্যালকুলেটর)
 
-*Effective 29 October 2026 · applies to app version 3.0.1 and later*
+*Effective 29 October 2026 · applies to app version 3.0.3 and later*
 
 **In short:** none of your financial information leaves your phone. There are no accounts, no ads, no analytics
 and no tracking.
@@ -12,6 +12,7 @@ and no tracking.
 | Amounts you enter, gold/silver weights, your zakat (hawl) date | On your phone only | Encrypted with AES-256-GCM; the key is kept in Android Keystore | Until you delete it or uninstall the app |
 | Language, theme, calculation method, weight unit | On your phone only | Private to the app; contains no amounts | Until you delete it or uninstall the app |
 | Last fetched gold/silver rates | On your phone only | Private to the app | Replaced on each fetch |
+| A downloaded update (`zakat-calculator-<version>.apk`) | Your phone's Downloads folder | Contains no personal data | Removed by the app after you update, or when you delete all data |
 
 None of this is included in Android cloud backup or device-to-device transfer.
 
@@ -24,8 +25,9 @@ No name, phone number, email, location, contacts or device identifiers. No adver
 The app connects to the internet only to:
 
 1. read today's gold and silver rates from **bajus.org**, and
-2. check **github.com** for a new app version (you can turn off automatic checks in Settings). The update itself
-   is downloaded by your browser when you tap *Update now*; the app never installs anything itself.
+2. check **github.com** for a new app version (you can turn off automatic checks in Settings) and, when you tap
+   *Update now*, download it with Android's download manager. The app never installs anything itself: you open
+   the file from Downloads and Android installs it.
 
 These requests contain none of your data. All connections use HTTPS (TLS 1.2 or higher). Like any website,
 those servers can see your IP address. Their own privacy policies apply.
