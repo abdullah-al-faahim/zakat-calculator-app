@@ -1,0 +1,18 @@
+{
+  "source": "BAJUS",
+  "url": "https://www.bajus.org/gold-price",
+  "date": "2026-11-06",
+  "GOLD": {
+    "K22": "19455",
+    "K21": "18580",
+    "K18": "15955",
+    "TRADITIONAL": "13035"
+  },
+  "SILVER": {
+    "K22": "300",
+    "K21": "290",
+    "K18": "250",
+    "TRADITIONAL": "190"
+  },
+  "checkedAt": "2026-11-06T08:01:15.154Z"
+}

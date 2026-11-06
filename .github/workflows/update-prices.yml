@@ -1,0 +1,54 @@
+name: Update gold and silver prices
+
+# BAJUS publishes new rates during the Bangladesh day; check at 10:00, 16:00 and 22:00 Dhaka time.
+on:
+  schedule:
+    - cron: "0 4,10,16 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "zakat.js"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/update-prices.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test the calculator and the price parser
+        run: |
+          node tests/zakat.test.js
+          node tests/prices.test.js
+
+      - name: Fetch and validate today's BAJUS rates
+        if: github.event_name != 'push'
+        run: node tools/update-prices.js
+
+      - name: Commit new rates
+        if: github.event_name != 'push'
+        run: |
+          if git diff --quiet -- prices.json; then
+            echo "No change."
+            exit 0
+          fi
+          node tools/update-prices.js --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          git commit -m "Update BAJUS prices to $(node -p "require('./prices.json').date")"
+          git push

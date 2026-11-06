@@ -56,9 +56,11 @@
   var unit = 'vori';
   var state = { amounts: {}, metal: { GOLD: {}, SILVER: {} }, worn: { GOLD: '', SILVER: '' }, prices: null,
     settings: { method: 'HANAFI', nisabBasis: 'AUTO', yearType: 'LUNAR', metalDeductionPercent: '' } };
+  // The day's BAJUS rates from prices.json (updated by a scheduled job); the bundled rates until it loads.
+  var baseline = Z.BUNDLED_PRICES, pricesEdited = false;
   function freshPrices() {
     var p = { GOLD: {}, SILVER: {} };
-    Z.KARATS.forEach(function (k) { p.GOLD[k] = Z.BUNDLED_PRICES.GOLD[k]; p.SILVER[k] = Z.BUNDLED_PRICES.SILVER[k]; });
+    Z.KARATS.forEach(function (k) { p.GOLD[k] = baseline.GOLD[k]; p.SILVER[k] = baseline.SILVER[k]; });
     return p;
   }
   state.prices = freshPrices();
@@ -197,14 +199,14 @@
         var input = el('input'); input.type = 'text'; input.inputMode = 'decimal';
         input.value = state.prices[metal][k];
         input.setAttribute('aria-label', METAL_TEXT[metal][1] + ' ' + KARAT_TEXT[k][1] + ' price per gram');
-        bindInput(input, function (v) { state.prices[metal][k] = v; });
+        bindInput(input, function (v) { state.prices[metal][k] = v; pricesEdited = true; });
         priceInputs[metal + k] = input;
         priceGrid.appendChild(input);
       });
     });
   }
   renderPriceGrid();
-  form.querySelector('[data-reset-prices]').addEventListener('click', function () { state.prices = freshPrices(); renderPriceGrid(); update(); });
+  form.querySelector('[data-reset-prices]').addEventListener('click', function () { state.prices = freshPrices(); pricesEdited = false; renderPriceGrid(); update(); });
 
   // Settings
   form.querySelectorAll('[data-setting]').forEach(function (input) {
@@ -368,8 +370,37 @@
     renderMetals(); update();
   }
   document.addEventListener('zc-lang', relabel);
-  var pd = document.querySelector('[data-price-date]'), pde = document.querySelector('[data-price-date-en]');
-  if (pd) pd.textContent = dateText(Z.BUNDLED_PRICES.date, 'bn');
-  if (pde) pde.textContent = dateText(Z.BUNDLED_PRICES.date, 'en');
+  function showPriceDate() {
+    var pd = document.querySelector('[data-price-date]'), pde = document.querySelector('[data-price-date-en]');
+    if (pd) pd.textContent = dateText(baseline.date, 'bn');
+    if (pde) pde.textContent = dateText(baseline.date, 'en');
+  }
+  showPriceDate();
   relabel();
+
+  // Same plausibility checks as the app's PriceValidator; anything odd keeps the bundled rates.
+  function plausible(p) {
+    if (!p || !/^\d{4}-\d{2}-\d{2}$/.test(p.date) || !p.GOLD || !p.SILVER) return false;
+    var age = (Date.now() - Date.parse(p.date)) / 86400000;
+    if (age < -2 || age > 45) return false;
+    for (var i = 0; i < Z.KARATS.length; i++) {
+      var k = Z.KARATS[i], g = Number(p.GOLD[k]), s = Number(p.SILVER[k]);
+      if (!(g >= 1000 && g <= 200000 && s >= 10 && s <= 5000)) return false;
+      if (i > 0 && (g > Number(p.GOLD[Z.KARATS[i - 1]]) || s > Number(p.SILVER[Z.KARATS[i - 1]]))) return false;
+    }
+    return true;
+  }
+  if (window.fetch) {
+    fetch('prices.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (p) {
+        if (!plausible(p) || p.date <= baseline.date) return;
+        baseline = { date: p.date, GOLD: {}, SILVER: {} };
+        Z.KARATS.forEach(function (k) { baseline.GOLD[k] = String(p.GOLD[k]); baseline.SILVER[k] = String(p.SILVER[k]); });
+        showPriceDate();
+        if (!pricesEdited) { state.prices = freshPrices(); renderPriceGrid(); }
+        relabel();
+      })
+      .catch(function () {});
+  }
 })();
