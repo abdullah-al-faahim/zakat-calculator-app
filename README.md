@@ -8,7 +8,9 @@
   <img src="assets/download-bn.svg" alt="অ্যান্ড্রয়েড অ্যাপ ডাউনলোড করুন" height="72">
 </a>
 
-<sub>বিনামূল্যে · বিজ্ঞাপন নেই · অ্যান্ড্রয়েড ৮.০ বা নতুন · মাত্র ~১.৪ এমবি</sub>
+<sub>বিনামূল্যে · বিজ্ঞাপন নেই · অ্যান্ড্রয়েড ৮.০ বা নতুন · মাত্র ~১.৮ এমবি</sub>
+
+**🌐 [ওয়েবসাইটেই যাকাত হিসাব করুন](https://abdullah-al-faahim.github.io/zakat-calculator-app/#calculator)** — অ্যাপ ছাড়াই, একই নিয়মে
 
 <br><br>
 
@@ -102,7 +104,9 @@
   <img src="assets/download-en.svg" alt="Download the Android app" height="72">
 </a>
 
-<sub>Free · No ads · Android 8.0+ · ~1.4 MB</sub>
+<sub>Free · No ads · Android 8.0+ · ~1.8 MB</sub>
+
+**🌐 [Calculate your zakat on the website](https://abdullah-al-faahim.github.io/zakat-calculator-app/#calculator)**, no install needed, same rules as the app.
 
 </div>
 

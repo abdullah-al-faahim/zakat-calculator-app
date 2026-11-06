@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>যাকাত ক্যালকুলেটর — অ্যান্ড্রয়েড অ্যাপ</title>
+<meta name="description" content="কুরআন ও সুন্নাহর আলোকে সহজে নিজের যাকাত হিসাব করুন। বাংলা ও ইংরেজি, বাজুসের আজকের দাম, ভরি-আনা-রতিতে সোনা, বিনামূল্যে, বিজ্ঞাপন নেই।">
+<meta name="theme-color" content="#0D4A2F">
+<meta property="og:title" content="যাকাত ক্যালকুলেটর — Zakat Calculator for Android">
+<meta property="og:description" content="Calculate your zakat in Bangla or English, with Quran verses and hadith, today's BAJUS gold and silver rates, and complete privacy.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://abdullah-al-faahim.github.io/zakat-calculator-app/">
+<meta property="og:image" content="https://abdullah-al-faahim.github.io/zakat-calculator-app/screenshots/01-home.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+  // Apply saved language/theme before first paint.
+  (function () {
+    var d = document.documentElement, q = new URLSearchParams(location.search);
+    var lang = q.get('lang'), theme = null;
+    try { lang = lang || localStorage.getItem('zc-lang'); theme = localStorage.getItem('zc-theme'); } catch (e) {}
+    if (lang === 'en' || lang === 'bn') d.lang = lang;
+    if (theme === 'light' || theme === 'dark') d.dataset.theme = theme;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #FBF6EA;
+    --surface: #FFFFFF;
+    --surface-2: #F3ECDA;
+    --text: #17261E;
+    --muted: #56665C;
+    --line: rgba(13, 74, 47, .13);
+    --brand: #0D4A2F;
+    --brand-2: #145C3A;
+    --brand-3: #1A7A4E;
+    --gold: #C9A84C;
+    --gold-soft: #E4C97E;
+    --on-gold: #1E1606;
+    --link: #146240;
+    --chip: #DDF0E4;
+    --shadow: 0 1px 2px rgba(13, 40, 28, .06), 0 10px 30px -12px rgba(13, 40, 28, .22);
+    --hero-from: #0D4A2F;
+    --hero-to: #17734A;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #09130F;
+      --surface: #11201A;
+      --surface-2: #162A21;
+      --text: #ECE6D6;
+      --muted: #A2B1A7;
+      --line: rgba(228, 201, 126, .14);
+      --link: #E4C97E;
+      --chip: #1B3A2B;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 14px 34px -14px rgba(0, 0, 0, .7);
+      --hero-from: #08291B;
+      --hero-to: #0F4A30;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #09130F;
+    --surface: #11201A;
+    --surface-2: #162A21;
+    --text: #ECE6D6;
+    --muted: #A2B1A7;
+    --line: rgba(228, 201, 126, .14);
+    --link: #E4C97E;
+    --chip: #1B3A2B;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 14px 34px -14px rgba(0, 0, 0, .7);
+    --hero-from: #08291B;
+    --hero-to: #0F4A30;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 17px/1.7 "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  html[lang="en"] body { line-height: 1.6; }
+  html[lang="bn"] .en, html[lang="en"] .bn { display: none !important; }
+  img { max-width: 100%; display: block; }
+  a { color: var(--link); text-underline-offset: 3px; }
+  h1, h2, h3 { font-family: "Noto Serif Bengali", Georgia, serif; line-height: 1.3; margin: 0; letter-spacing: -.01em; }
+  html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] h3 { font-family: Georgia, "Noto Serif Bengali", serif; }
+  .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 720px) { .wrap { padding: 0 28px; } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 8px; }
+
+  /* ── Top bar ── */
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--hero-from) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid rgba(228, 201, 126, .12);
+  }
+  .top .wrap { display: flex; align-items: center; gap: 12px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: #FDF8EE; text-decoration: none; font-weight: 700; font-size: 17px; white-space: nowrap; }
+  .brand img { width: 34px; height: 34px; }
+  .nav { display: none; gap: 22px; margin-left: 28px; }
+  .nav a { color: rgba(253, 248, 238, .78); text-decoration: none; font-size: 15px; }
+  .nav a:hover { color: #FDF8EE; }
+  @media (min-width: 900px) { .nav { display: flex; } }
+  .tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .seg { display: inline-flex; padding: 3px; border-radius: 999px; background: rgba(253, 248, 238, .1); border: 1px solid rgba(253, 248, 238, .16); }
+  .seg button {
+    font: 600 14px/1 "Noto Sans Bengali", system-ui, sans-serif; border: 0; cursor: pointer;
+    padding: 8px 12px; border-radius: 999px; background: transparent; color: rgba(253, 248, 238, .8);
+  }
+  .seg button[aria-pressed="true"] { background: #FDF8EE; color: var(--brand); }
+  .icon-btn {
+    width: 38px; height: 38px; display: grid; place-items: center; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(253, 248, 238, .16); background: rgba(253, 248, 238, .1); color: #FDF8EE;
+  }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn .moon { display: none; }
+  .is-dark .icon-btn .sun { display: none; }
+  .is-dark .icon-btn .moon { display: block; }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative; overflow: hidden; color: #FDF8EE;
+    background:
+      radial-gradient(1200px 500px at 85% -10%, rgba(228, 201, 126, .18), transparent 60%),
+      linear-gradient(160deg, var(--hero-from), var(--hero-to));
+    border-radius: 0 0 36px 36px;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; opacity: .07; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 108 108'%3E%3Cpath fill='%23E4C97E' d='M54,14 L63,37 L86,28 L77,51 L100,54 L77,57 L86,80 L63,71 L54,94 L45,71 L22,80 L31,57 L8,54 L31,51 L22,28 L45,37 Z'/%3E%3C/svg%3E");
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+  }
+  .hero .wrap { position: relative; display: grid; gap: 40px; padding-top: 44px; padding-bottom: 56px; }
+  @media (min-width: 900px) { .hero .wrap { grid-template-columns: 1.1fr .9fr; align-items: center; padding-top: 72px; padding-bottom: 80px; } }
+  .eyebrow { color: var(--gold-soft); font-weight: 600; font-size: 15px; margin: 0 0 10px; }
+  .hero h1 { font-size: clamp(36px, 8vw, 62px); font-weight: 800; }
+  .hero .lede { font-size: clamp(17px, 2.4vw, 20px); color: rgba(253, 248, 238, .86); margin: 16px 0 28px; max-width: 34em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn-dl {
+    display: inline-flex; align-items: center; gap: 14px; text-decoration: none;
+    background: linear-gradient(180deg, #E8CF88, var(--gold)); color: var(--on-gold);
+    padding: 14px 24px 14px 18px; border-radius: 18px;
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .5);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-dl:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -10px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .5); }
+  .btn-dl svg { width: 34px; height: 34px; flex: none; }
+  .btn-dl small { display: block; font-size: 12.5px; font-weight: 500; opacity: .8; line-height: 1.2; }
+  .btn-dl strong { display: block; font-size: 19px; line-height: 1.35; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #FDF8EE; font-weight: 600; font-size: 15px;
+    padding: 12px 18px; border-radius: 14px; border: 1px solid rgba(253, 248, 238, .25);
+  }
+  .btn-ghost:hover { background: rgba(253, 248, 238, .08); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding: 0; list-style: none; }
+  .meta li {
+    font-size: 13.5px; color: rgba(253, 248, 238, .86); padding: 4px 12px; border-radius: 999px;
+    background: rgba(253, 248, 238, .08); border: 1px solid rgba(253, 248, 238, .14);
+  }
+
+  .phones { position: relative; height: 470px; max-width: 420px; width: 100%; margin: 0 auto; }
+  @media (min-width: 900px) { .phones { height: 560px; } }
+  .phone {
+    position: absolute; width: 58%; aspect-ratio: 600 / 1333; border-radius: 30px; padding: 7px;
+    background: #050B08; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .08);
+  }
+  .phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 24px; }
+  .phone.a { left: 2%; top: 6%; transform: rotate(-5deg); z-index: 2; }
+  .phone.b { right: 2%; top: 0; transform: rotate(5deg); }
+  .phone .dark-shot { display: none; }
+  .is-dark .phone .dark-shot { display: block; }
+  .is-dark .phone .light-shot { display: none; }
+
+  /* ── Sections ── */
+  section { padding: 72px 0; }
+  @media (max-width: 719px) { section { padding: 56px 0; } }
+  .sec-head { max-width: 40em; margin-bottom: 32px; }
+  .sec-head h2 { font-size: clamp(26px, 4.6vw, 38px); }
+  .sec-head p { color: var(--muted); margin: 10px 0 0; }
+  .kicker { color: var(--brand-3); font-weight: 700; font-size: 14px; letter-spacing: .02em; margin: 0 0 8px; }
+  .is-dark .kicker { color: var(--gold-soft); }
+
+  /* Verse */
+  .verse { padding: 56px 0 0; }
+  .verse + .calc-sec { padding-top: 64px; }
+  .verse figure {
+    margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow);
+    padding: 28px 22px; position: relative; overflow: hidden;
+  }
+  @media (min-width: 720px) { .verse figure { padding: 40px 48px; } }
+  .verse figure::after {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--brand), var(--gold), var(--brand));
+  }
+  .arabic {
+    font-family: "Noto Naskh Arabic", serif; font-weight: 600; direction: rtl; text-align: center;
+    font-size: clamp(24px, 4.4vw, 36px); line-height: 2; color: var(--brand); margin: 0 0 16px;
+  }
+  .is-dark .arabic { color: var(--gold-soft); }
+  .verse blockquote { margin: 0 auto; max-width: 46em; text-align: center; font-size: clamp(16px, 2.2vw, 18px); }
+  .verse figcaption { text-align: center; color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+  /* Features */
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 980px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px 20px 18px;
+    box-shadow: var(--shadow);
+  }
+  .card .ic {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px;
+    background: var(--chip); margin-bottom: 12px;
+  }
+  .card h3 { font-size: 19px; margin-bottom: 4px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  /* Screenshots */
+  .shots-band { background: var(--surface-2); }
+  .strip {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 210px; gap: 18px;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 2px 20px; overscroll-behavior-x: contain;
+    scrollbar-width: thin; scrollbar-color: var(--gold) transparent;
+  }
+  @media (min-width: 720px) { .strip { grid-auto-columns: 236px; } }
+  .strip figure { margin: 0; scroll-snap-align: start; }
+  .strip .frame { border-radius: 26px; padding: 6px; background: #050B08; box-shadow: var(--shadow); }
+  .strip img { border-radius: 21px; aspect-ratio: 600 / 1333; width: 100%; height: auto; object-fit: cover; }
+  .strip figcaption { font-size: 14.5px; font-weight: 600; text-align: center; margin-top: 10px; }
+  .strip-nav { display: flex; gap: 8px; justify-content: flex-end; margin-top: -8px; }
+  .strip-nav button {
+    width: 42px; height: 42px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text);
+    cursor: pointer; display: grid; place-items: center; box-shadow: var(--shadow);
+  }
+  .strip-nav svg { width: 18px; height: 18px; }
+
+  /* Rules */
+  .rules { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .rules { grid-template-columns: repeat(3, 1fr); } }
+  .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; box-shadow: var(--shadow); }
+  .rule .big { font-family: "Noto Serif Bengali", Georgia, serif; font-weight: 800; font-size: 30px; color: var(--brand); line-height: 1.2; }
+  .is-dark .rule .big { color: var(--gold-soft); }
+  .rule .big span.unit { font-size: 17px; font-weight: 700; }
+  .rule h3 { font-size: 17px; margin: 0 0 8px; color: var(--muted); font-family: inherit; font-weight: 600; }
+  .rule p { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+  .note {
+    margin-top: 18px; padding: 16px 18px; border-radius: 16px; font-size: 15px;
+    background: color-mix(in srgb, var(--gold) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  }
+
+  /* Install */
+  .install { display: grid; gap: 28px; }
+  @media (min-width: 900px) { .install { grid-template-columns: 1fr 1fr; align-items: start; } }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 12px; }
+  .steps li {
+    counter-increment: s; position: relative; padding: 16px 18px 16px 64px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+  }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 16px; top: 14px; width: 34px; height: 34px; border-radius: 12px;
+    display: grid; place-items: center; font-weight: 700; background: var(--brand); color: #FDF8EE;
+  }
+  html[lang="bn"] .steps li::before { content: counter(s, bengali); }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px; box-shadow: var(--shadow); }
+  .panel h3 { font-size: 19px; margin-bottom: 8px; }
+  .panel p { margin: 0 0 10px; color: var(--muted); font-size: 15.5px; }
+  .panel p:last-child { margin-bottom: 0; }
+  .sha {
+    display: block; font: 500 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; color: var(--text); margin-top: 6px;
+  }
+
+  /* Privacy */
+  .privacy {
+    border-radius: 28px; padding: 32px 22px; color: #FDF8EE;
+    background: linear-gradient(150deg, var(--hero-from), var(--hero-to));
+    display: grid; gap: 24px;
+  }
+  @media (min-width: 860px) { .privacy { grid-template-columns: .9fr 1.1fr; padding: 48px; align-items: center; } }
+  .privacy h2 { font-size: clamp(26px, 4.4vw, 36px); }
+  .privacy p { color: rgba(253, 248, 238, .82); margin: 12px 0 0; }
+  .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .ticks li { display: flex; gap: 12px; align-items: flex-start; background: rgba(253, 248, 238, .07); border: 1px solid rgba(253, 248, 238, .12); border-radius: 14px; padding: 12px 14px; }
+  .ticks svg { width: 20px; height: 20px; flex: none; margin-top: 4px; color: var(--gold-soft); }
+  .privacy a { color: var(--gold-soft); }
+
+  /* Final CTA + footer */
+  .final { text-align: center; }
+  .final h2 { font-size: clamp(26px, 4.6vw, 38px); }
+  .final p { color: var(--muted); margin: 10px auto 26px; max-width: 34em; }
+  .final .cta { justify-content: center; }
+  .final .btn-ghost { color: var(--text); border-color: var(--line); }
+  .final .btn-ghost:hover { background: var(--surface-2); }
+  .disclaimer { max-width: 44em; margin: 36px auto 0; font-size: 14.5px; color: var(--muted); }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 40px; font-size: 14.5px; color: var(--muted); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+
+  /* ── Calculator ── */
+  .calc { display: grid; gap: 20px; align-items: start; }
+  @media (min-width: 940px) { .calc { grid-template-columns: minmax(0, 1.25fr) minmax(0, .9fr); gap: 28px; } }
+  .calc-form { display: grid; gap: 12px; min-width: 0; }
+  .group { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+  .group > summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+    font-weight: 700; font-size: 17px; border-radius: 20px;
+  }
+  .group > summary::-webkit-details-marker { display: none; }
+  .group > summary::after {
+    content: ""; width: 9px; height: 9px; flex: none; margin-left: 4px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg) translateY(-3px); transition: transform .15s ease;
+  }
+  .group[open] > summary::after { transform: rotate(-135deg) translate(-2px, -1px); }
+  .group .num {
+    width: 32px; height: 32px; flex: none; border-radius: 10px; display: grid; place-items: center; font-size: 15px;
+    background: var(--chip); color: var(--brand);
+  }
+  .is-dark .group .num { color: var(--gold-soft); }
+  .group .num svg { width: 18px; height: 18px; }
+  .group .t { flex: 1; min-width: 0; }
+  .group .sum { font-size: 14.5px; font-weight: 600; color: var(--brand-3); white-space: nowrap; }
+  .is-dark .group .sum { color: var(--gold-soft); }
+  .group .sum.neg { color: #B4442E; }
+  .is-dark .group .sum.neg { color: #F08A73; }
+  .group > :not(summary) { margin-left: 18px; margin-right: 18px; }
+  .group > :last-child { margin-bottom: 18px; }
+  .fields { display: grid; gap: 12px; margin-top: 4px; margin-bottom: 12px; }
+  @media (min-width: 640px) { .fields { grid-template-columns: 1fr 1fr; } }
+  .fields.two { margin-top: 4px; }
+  @media (min-width: 640px) { .fields.two { grid-template-columns: 1fr 1fr 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .lbl { font-weight: 600; font-size: 15px; line-height: 1.45; margin: 0; }
+  .hint { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 0; }
+  .field .hint { margin-top: -2px; }
+  .field input, .field select, .wt input, .price-grid input {
+    width: 100%; min-width: 0; font: 500 16px/1.3 "Noto Sans Bengali", system-ui, sans-serif; color: var(--text);
+    background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 12px; margin-top: auto;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .field select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 34px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 52%, calc(100% - 13px) 52%; background-size: 5px 5px; background-repeat: no-repeat; }
+  .field input:focus, .field select:focus, .wt input:focus, .price-grid input:focus { outline: none; border-color: var(--brand-3); background: var(--surface); }
+  .is-dark .field input:focus, .is-dark .field select:focus, .is-dark .wt input:focus, .is-dark .price-grid input:focus { border-color: var(--gold); }
+  input[aria-invalid="true"] { border-color: #C2412A !important; }
+  .taka { position: relative; display: block; margin-top: auto; }
+  .taka::before { content: "৳"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; pointer-events: none; }
+  .taka input { padding-left: 28px; }
+  .metal-tools { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 10px; }
+  .seg-sm { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); }
+  .seg-sm button { font: 600 14px/1 "Noto Sans Bengali", system-ui, sans-serif; border: 0; cursor: pointer; padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--muted); }
+  .seg-sm button[aria-pressed="true"] { background: var(--brand); color: #FDF8EE; }
+  .metal-block { margin-bottom: 14px; }
+  .metal-block h4 { margin: 4px 0 8px; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
+  .metal-block h4 i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+  .wt-row { display: grid; grid-template-columns: 92px 1fr; gap: 8px 10px; align-items: center; padding: 6px 0; border-top: 1px dashed var(--line); }
+  .wt-row:first-of-type { border-top: 0; }
+  .wt-row .k { font-size: 14.5px; font-weight: 600; }
+  .wt-row .k small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .wt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .wt.g { grid-template-columns: minmax(0, 1fr); max-width: 220px; }
+  .wt label { position: relative; display: block; }
+  .wt label span { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12.5px; color: var(--muted); pointer-events: none; }
+  .wt input { padding: 10px 40px 10px 10px; }
+  .prices { border-top: 1px solid var(--line); padding-top: 14px; }
+  .prices .hint { margin: 2px 0 10px; }
+  .price-grid { display: grid; grid-template-columns: 76px 1fr 1fr; gap: 6px 8px; align-items: center; font-size: 14px; }
+  .price-grid .h { font-weight: 700; color: var(--muted); font-size: 13px; }
+  .price-grid input { padding: 8px 10px; font-size: 15px; }
+  .method-note { margin: -2px 0 14px; }
+  .link-btn { margin-top: 10px; background: none; border: 0; padding: 4px 0; color: var(--link); font: 600 14px/1.4 "Noto Sans Bengali", system-ui, sans-serif; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+  .calc-result { display: grid; gap: 12px; min-width: 0; scroll-margin-top: 80px; }
+  @media (min-width: 940px) { .calc-result { position: sticky; top: 84px; } }
+  .res-card {
+    border-radius: 24px; padding: 24px 22px; text-align: center; color: #FDF8EE; position: relative; overflow: hidden;
+    background: linear-gradient(155deg, var(--hero-from), var(--hero-to)); box-shadow: var(--shadow);
+  }
+  .res-card.not-due { background: linear-gradient(155deg, #3B4A42, #52615A); }
+  .res-card.empty { background: var(--surface); color: var(--text); border: 1.5px dashed var(--line); box-shadow: none; }
+  .res-state { font-weight: 700; font-size: 17px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .res-state svg { width: 26px; height: 26px; color: var(--gold-soft); flex: none; }
+  .res-amount { font-family: "Noto Serif Bengali", Georgia, serif; font-weight: 800; font-size: clamp(38px, 7vw, 52px); color: var(--gold-soft); line-height: 1.15; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .res-amount:empty { display: none; }
+  .res-sub { font-size: 14.5px; opacity: .85; margin-top: 6px; }
+  .res-card.empty .res-sub { color: var(--muted); opacity: 1; }
+  .breakdown { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .breakdown h3 { font-size: 17px; margin-bottom: 8px; }
+  .breakdown dl { margin: 0; display: grid; grid-template-columns: 1fr auto; font-size: 15px; }
+  .breakdown dt, .breakdown dd { padding: 7px 0; border-top: 1px solid var(--line); margin: 0; }
+  .breakdown dt { color: var(--muted); padding-right: 12px; }
+  .breakdown dd { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .breakdown dl > :nth-child(1), .breakdown dl > :nth-child(2) { border-top: 0; }
+  .breakdown .strong { color: var(--text); font-weight: 700; }
+  .breakdown .minus { color: #B4442E; }
+  .is-dark .breakdown .minus { color: #F08A73; }
+  .breakdown .muted-row { color: var(--muted); font-size: 13.5px; }
+  .breakdown .total { font-weight: 800; color: var(--brand); font-size: 16px; }
+  .is-dark .breakdown .total { color: var(--gold-soft); }
+  .why { margin: 12px 0 0; font-size: 14px; color: var(--muted); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
+  .res-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn-line {
+    flex: 1 1 auto; text-align: center; text-decoration: none; cursor: pointer; font: 600 14.5px/1.3 "Noto Sans Bengali", system-ui, sans-serif;
+    padding: 11px 14px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--text);
+  }
+  .btn-line:hover { background: var(--surface-2); }
+  .calc-note { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .mini-bar {
+    position: sticky; bottom: 12px; z-index: 5; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 18px; border-radius: 16px; text-decoration: none; color: #FDF8EE;
+    background: linear-gradient(155deg, var(--hero-from), var(--hero-to)); box-shadow: 0 12px 28px -10px rgba(0, 0, 0, .5);
+  }
+  .mini-bar strong { color: var(--gold-soft); font-size: 19px; font-variant-numeric: tabular-nums; }
+  @media (min-width: 940px) { .mini-bar { display: none !important; } }
+
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn-dl { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <img src="assets/icon.svg" alt="" width="34" height="34">
+      <span><span class="bn">যাকাত ক্যালকুলেটর</span><span class="en">Zakat Calculator</span></span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#calculator"><span class="bn">হিসাব করুন</span><span class="en">Calculator</span></a>
+      <a href="#features"><span class="bn">ফিচার</span><span class="en">Features</span></a>
+      <a href="#screens"><span class="bn">স্ক্রিনশট</span><span class="en">Screenshots</span></a>
+      <a href="#rules"><span class="bn">হিসাবের ভিত্তি</span><span class="en">How it works</span></a>
+      <a href="#install"><span class="bn">ইনস্টল</span><span class="en">Install</span></a>
+      <a href="#privacy"><span class="bn">গোপনীয়তা</span><span class="en">Privacy</span></a>
+    </nav>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Language / ভাষা">
+        <button type="button" data-lang="bn" aria-pressed="true">বাংলা</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button type="button" class="icon-btn" id="theme" aria-label="Toggle light or dark theme">
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow"><span class="bn">আসসালামু আলাইকুম</span><span class="en">Assalamu alaikum</span></p>
+        <h1><span class="bn">যাকাত ক্যালকুলেটর</span><span class="en">Zakat Calculator</span></h1>
+        <p class="lede">
+          <span class="bn">কুরআন ও সুন্নাহর আলোকে সহজে নিজের যাকাত হিসাব করুন। কত টাকা, কত ভরি সোনা আছে লিখে দিন — অ্যাপ বলে দেবে যাকাত ফরজ হয়েছে কি না, আর হলে কত দিতে হবে।</span>
+          <span class="en">Work out your zakat the way the Quran and Sunnah teach. Enter your cash, savings and gold, and the app tells you whether zakat is due, and how much to give.</span>
+        </p>
+        <div class="cta">
+          <a class="btn-dl" href="https://github.com/abdullah-al-faahim/zakat-calculator-app/releases/latest/download/zakat-calculator.apk">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.69-.4l-1.86 3.22a11.4 11.4 0 0 0-9.78 0L5.25 5.9a.4.4 0 1 0-.69.4L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52ZM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"/></svg>
+            <span>
+              <small><span class="bn">অ্যান্ড্রয়েডের জন্য</span><span class="en">Get it for Android</span></small>
+              <strong><span class="bn">ডাউনলোড করুন</span><span class="en">Download the app</span></strong>
+            </span>
+          </a>
+          <a class="btn-ghost" href="#calculator"><span class="bn">এখানেই হিসাব করুন</span><span class="en">Calculate here</span></a>
+        </div>
+        <ul class="meta">
+          <li><span class="bn">সংস্করণ</span><span class="en">Version</span> <span data-ver>3.0.1</span></li>
+          <li><span class="bn">বিনামূল্যে, বিজ্ঞাপন নেই</span><span class="en">Free, no ads</span></li>
+          <li><span class="bn">অ্যান্ড্রয়েড ৮.০ বা নতুন</span><span class="en">Android 8.0+</span></li>
+          <li data-size-li><span data-size><span class="bn">~১.৮ এমবি</span><span class="en">~1.8 MB</span></span></li>
+        </ul>
+      </div>
+      <div class="phones" aria-hidden="true">
+        <div class="phone b"><img src="screenshots/04-result.png" alt="" width="600" height="1333"></div>
+        <div class="phone a">
+          <img class="light-shot" src="screenshots/01-home.png" alt="" width="600" height="1333">
+          <img class="dark-shot" src="screenshots/10-home-dark.png" alt="" width="600" height="1333" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verse">
+    <div class="wrap">
+      <figure>
+        <p class="arabic" lang="ar">خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِمْ بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ</p>
+        <blockquote>
+          <span class="bn">“তাদের মালামাল থেকে যাকাত গ্রহণ কর যাতে তুমি সেগুলোকে পবিত্র করতে এবং সেগুলোকে বরকতময় করতে পার এর মাধ্যমে। আর তুমি তাদের জন্য দোয়া কর, নিঃসন্দেহে তোমার দোয়া তাদের জন্য সান্ত্বনা স্বরূপ। বস্তুতঃ আল্লাহ সবকিছুই শোনেন, জানেন।”</span>
+          <span class="en">“Take, [O, Muhammad], from their wealth a charity by which you purify them and cause them increase, and invoke [Allah 's blessings] upon them. Indeed, your invocations are reassurance for them. And Allah is Hearing and Knowing.”</span>
+        </blockquote>
+        <figcaption>
+          <span class="bn">সূরা আত-তাওবা ৯:১০৩ · অনুবাদ: মুহিউদ্দীন খান</span>
+          <span class="en">Surah At-Tawba 9:103 · Translation: Saheeh International</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <section id="calculator" class="calc-sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker"><span class="bn">এখানেই হিসাব করুন</span><span class="en">Calculate right here</span></p>
+        <h2><span class="bn">আপনার যাকাত হিসাব করুন</span><span class="en">Calculate your zakat</span></h2>
+        <p><span class="bn">অ্যাপের মতো একই নিয়মে হিসাব। যা আছে শুধু সেটুকু লিখুন, বাকি ঘর খালি রাখুন। আপনার লেখা কোনো তথ্য কোথাও পাঠানো বা সংরক্ষণ করা হয় না — সব হিসাব আপনার ব্রাউজারেই হয়।</span><span class="en">The same rules as the app. Fill in only what you have and leave the rest empty. Nothing you type is sent anywhere or saved; the whole calculation runs in your browser.</span></p>
+      </div>
+      <div class="calc">
+        <form class="calc-form" id="calc-form" autocomplete="off" novalidate>
+          <details class="group" open>
+            <summary><span class="num"><span class="bn">১</span><span class="en">1</span></span><span class="t"><span class="bn">নগদ, ব্যাংক ও সঞ্চয়</span><span class="en">Cash, bank &amp; savings</span></span><span class="sum" data-sum="CASH"></span></summary>
+            <div class="fields" data-fields="CASH"></div>
+          </details>
+          <details class="group">
+            <summary><span class="num"><span class="bn">২</span><span class="en">2</span></span><span class="t"><span class="bn">সোনা ও রূপা</span><span class="en">Gold &amp; silver</span></span><span class="sum" data-sum="METALS"></span></summary>
+            <div class="metal-tools">
+              <div class="seg-sm" role="group" aria-label="Weight unit">
+                <button type="button" data-unit="vori" aria-pressed="true"><span class="bn">ভরি-আনা-রতি</span><span class="en">Vori-ana-roti</span></button>
+                <button type="button" data-unit="gram" aria-pressed="false"><span class="bn">গ্রাম</span><span class="en">Grams</span></button>
+              </div>
+              <p class="hint"><span class="bn">১ ভরি = ১৬ আনা = ১১.৬৬৪ গ্রাম; ১ আনা = ৬ রতি</span><span class="en">1 vori = 16 ana = 11.664 g; 1 ana = 6 roti</span></p>
+            </div>
+            <div data-metal="GOLD"></div>
+            <div data-metal="SILVER"></div>
+            <div class="fields" data-worn hidden></div>
+            <div class="fields">
+              <label class="field"><span class="lbl"><span class="bn">বিক্রির সময় যে অংশ কাটা যায় (%)</span><span class="en">Jeweller's buy-back cut (%)</span></span>
+                <span class="hint"><span class="bn">ঐচ্ছিক। বিক্রয়মূল্যে হিসাব করতে চাইলে, যেমন ১০ থেকে ২০%</span><span class="en">Optional, to value metal at its resale price, e.g. 10 to 20%</span></span>
+                <input type="text" inputmode="decimal" data-setting="metalDeductionPercent" placeholder="0"></label>
+            </div>
+          </details>
+          <details class="group">
+            <summary><span class="num"><span class="bn">৩</span><span class="en">3</span></span><span class="t"><span class="bn">ব্যবসা ও বিনিয়োগ</span><span class="en">Business &amp; investments</span></span><span class="sum" data-sum="BUSINESS_INVESTMENT"></span></summary>
+            <div class="fields" data-fields="BUSINESS"></div>
+            <div class="fields" data-fields="INVESTMENT"></div>
+          </details>
+          <details class="group">
+            <summary><span class="num"><span class="bn">৪</span><span class="en">4</span></span><span class="t"><span class="bn">ঋণ ও দেনা</span><span class="en">Debts &amp; dues</span></span><span class="sum neg" data-sum="LIABILITY"></span></summary>
+            <div class="fields" data-fields="LIABILITY"></div>
+          </details>
+          <details class="group">
+            <summary><span class="num">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+            </span><span class="t"><span class="bn">হিসাবের নিয়ম ও দাম</span><span class="en">Method &amp; prices</span></span><span class="sum" data-sum="SETTINGS"></span></summary>
+            <div class="fields two">
+              <label class="field"><span class="lbl"><span class="bn">মাযহাব</span><span class="en">School (madhhab)</span></span>
+                <select data-setting="method">
+                  <option value="HANAFI" data-bn="হানাফি" data-en="Hanafi">হানাফি</option>
+                  <option value="SHAFII" data-bn="শাফেয়ি" data-en="Shafi'i">শাফেয়ি</option>
+                  <option value="MALIKI" data-bn="মালেকি" data-en="Maliki">মালেকি</option>
+                  <option value="HANBALI" data-bn="হাম্বলি" data-en="Hanbali">হাম্বলি</option>
+                </select></label>
+              <label class="field"><span class="lbl"><span class="bn">নিসাব</span><span class="en">Nisab</span></span>
+                <select data-setting="nisabBasis">
+                  <option value="AUTO" data-bn="নিয়ম অনুযায়ী (প্রস্তাবিত)" data-en="By the rule (recommended)">নিয়ম অনুযায়ী (প্রস্তাবিত)</option>
+                  <option value="SILVER" data-bn="সবসময় রূপার নিসাব" data-en="Always silver">সবসময় রূপার নিসাব</option>
+                  <option value="GOLD" data-bn="সবসময় সোনার নিসাব" data-en="Always gold">সবসময় সোনার নিসাব</option>
+                </select></label>
+              <label class="field"><span class="lbl"><span class="bn">বছর</span><span class="en">Year</span></span>
+                <select data-setting="yearType">
+                  <option value="LUNAR" data-bn="হিজরি বছর (২.৫%)" data-en="Hijri year (2.5%)">হিজরি বছর (২.৫%)</option>
+                  <option value="SOLAR" data-bn="ইংরেজি বছর (২.৫৭৭%)" data-en="Gregorian year (2.577%)">ইংরেজি বছর (২.৫৭৭%)</option>
+                </select></label>
+            </div>
+            <p class="hint method-note" data-method-note></p>
+            <div class="prices">
+              <p class="lbl"><span class="bn">সোনা-রূপার দাম (প্রতি গ্রাম, টাকা)</span><span class="en">Gold and silver price (taka per gram)</span></p>
+              <p class="hint"><span class="bn">বাজুসের <span data-price-date>২৮ অক্টোবর ২০২৬</span> তারিখের দাম দেওয়া আছে। আজকের দাম <a href="https://www.bajus.org/gold-price" target="_blank" rel="noopener">bajus.org</a>-এ দেখে বদলে নিন।</span><span class="en">Prefilled with BAJUS rates of <span data-price-date-en>28 October 2026</span>. Check today's rate on <a href="https://www.bajus.org/gold-price" target="_blank" rel="noopener">bajus.org</a> and change them if needed.</span></p>
+              <div class="price-grid" data-prices></div>
+              <button type="button" class="link-btn" data-reset-prices><span class="bn">বাজুসের দামে ফিরে যান</span><span class="en">Restore BAJUS rates</span></button>
+            </div>
+          </details>
+        </form>
+
+        <aside class="calc-result" id="calc-result-top" aria-live="polite">
+          <div class="res-card" data-res-card>
+            <div class="res-state" data-res-state></div>
+            <div class="res-amount" data-res-amount></div>
+            <div class="res-sub" data-res-sub></div>
+          </div>
+          <div class="breakdown" data-breakdown hidden>
+            <h3><span class="bn">হিসাবের বিবরণ</span><span class="en">Breakdown</span></h3>
+            <dl data-rows></dl>
+            <p class="why" data-why></p>
+          </div>
+          <div class="res-actions">
+            <button type="button" class="btn-line" data-reset><span class="bn">সব মুছে নতুন করে</span><span class="en">Clear and start again</span></button>
+            <a class="btn-line" href="#features"><span class="bn">কাকে দেবেন? অ্যাপে দেখুন</span><span class="en">Who to give it to? See the app</span></a>
+          </div>
+          <p class="calc-note"><span class="bn">ফসল, গবাদি পশু ও ফিতরার হিসাব, হিজরি যাকাত-বছর আর প্রতিটি নিয়মের আয়াত-হাদিস পাবেন অ্যাপে।</span><span class="en">Crops, livestock and fitra, Hijri zakat-year dates, and the verse or hadith behind each rule are in the app.</span></p>
+        </aside>
+      </div>
+      <a class="mini-bar" href="#calc-result-top" data-mini hidden>
+        <span data-mini-label></span><strong data-mini-amount></strong>
+      </a>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker"><span class="bn">যা যা পাবেন</span><span class="en">What's inside</span></p>
+        <h2><span class="bn">বাংলাদেশের মানুষের জন্য, বাংলায়</span><span class="en">Made for Bangladesh, Bangla first</span></h2>
+        <p><span class="bn">প্রতিটি নিয়মের পাশে কুরআনের আয়াত ও হাদিস আছে, যাতে জেনে-বুঝে যাকাত দিতে পারেন। এক ট্যাপে ইংরেজিতেও দেখা যায়।</span><span class="en">Every rule comes with the Quran verse or hadith behind it, so you know why. Switch to English with one tap.</span></p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="ic" aria-hidden="true">🧮</div>
+          <h3><span class="bn">সম্পদের যাকাত</span><span class="en">Zakat on wealth</span></h3>
+          <p><span class="bn">নগদ, ব্যাংক, বিকাশ/নগদ/রকেট, সঞ্চয়পত্র-এফডিআর-ডিপিএস, ধার দেওয়া টাকা, ব্যবসার মাল, শেয়ার — পাঁচটি সহজ ধাপে।</span><span class="en">Cash, bank, bKash/Nagad/Rocket, savings certificates, FDR/DPS, money lent, business stock and shares, in five easy steps.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">🪙</div>
+          <h3><span class="bn">ভরি-আনা-রতিতে সোনা</span><span class="en">Gold in vori, ana, roti</span></h3>
+          <p><span class="bn">ভরি-আনা-রতি বা গ্রামে; ২২, ২১, ১৮ ক্যারেট ও সনাতন — প্রতিটির আলাদা দাম।</span><span class="en">Enter gold and silver in vori-ana-roti or grams, by karat: 22K, 21K, 18K or traditional.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">📈</div>
+          <h3><span class="bn">বাজুসের আজকের দাম</span><span class="en">Today's BAJUS rates</span></h3>
+          <p><span class="bn">অ্যাপ খুললেই bajus.org থেকে দৈনিক দাম আসে, তারিখসহ। ইন্টারনেট না থাকলে শেষ সংরক্ষিত দাম।</span><span class="en">Daily gold and silver rates from bajus.org, with the date shown. Works offline with the last saved rates.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">⚖️</div>
+          <h3><span class="bn">মাযহাব অনুযায়ী হিসাব</span><span class="en">Your madhhab</span></h3>
+          <p><span class="bn">হানাফি মত প্রাধান্য পেয়েছে; চাইলে শাফেয়ি, মালেকি বা হাম্বলি — ব্যবহারের গহনা ও ঋণের বিধান সেই অনুযায়ী।</span><span class="en">Hanafi by default, or choose Shafi'i, Maliki or Hanbali. Worn jewellery and debts follow the school you pick.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">📋</div>
+          <h3><span class="bn">লাইন-বাই-লাইন বিবরণ</span><span class="en">Line-by-line breakdown</span></h3>
+          <p><span class="bn">কোন নিসাব কেন ধরা হলো, কত বাদ গেল — সব খোলাখুলি। দশমিকে নির্ভুল হিসাব।</span><span class="en">See which nisab was used and why, and what was deducted. Exact decimal arithmetic throughout.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">🌙</div>
+          <h3><span class="bn">হিজরি যাকাত-বছর</span><span class="en">Hijri zakat year</span></h3>
+          <p><span class="bn">যেদিন নিসাব পূর্ণ হয়েছে সেই তারিখ দিলে হিজরি হিসাবে পরের যাকাতের তারিখ বলে দেয়।</span><span class="en">Enter the day you reached nisab and get your next zakat date on the Hijri calendar.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">🌾</div>
+          <h3><span class="bn">ফসল, পশু ও ফিতরা</span><span class="en">Crops, livestock, fitra</span></h3>
+          <p><span class="bn">উশর (১০%, ৫%, ৭.৫%), গরু-ছাগল-উটের হাদিসের পূর্ণ তালিকা, আর ইসলামিক ফাউন্ডেশনের ২০২৬ সালের ফিতরার হার।</span><span class="en">Ushr at 10%, 5% or 7.5%; the full hadith tables for cattle, goats and camels; and the Islamic Foundation's 2026 fitra rates.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">📖</div>
+          <h3><span class="bn">কুরআন ও হাদিস, হুবহু</span><span class="en">Quran and hadith, verbatim</span></h3>
+          <p><span class="bn">৪০টি আয়াত ও হাদিস — মূল আরবি, প্রকাশিত অনুবাদ ও হাদিসের মান। প্রতিটিতে "ভুল জানান" বোতাম।</span><span class="en">40 verses and hadith in Arabic, with published translations and hadith grades, and a "Report an error" button on each.</span></p></article>
+        <article class="card"><div class="ic" aria-hidden="true">🤲</div>
+          <h3><span class="bn">কাকে দেবেন</span><span class="en">Who receives zakat</span></h3>
+          <p><span class="bn">সূরা তাওবার ৬০ নম্বর আয়াতের ৮টি খাত, আর গহনা, প্রভিডেন্ট ফান্ড, প্লট-ফ্ল্যাট নিয়ে প্রশ্নোত্তর।</span><span class="en">The eight categories of 9:60, plus answers on jewellery, provident funds, land and flats, and more.</span></p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens" class="shots-band">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker"><span class="bn">স্ক্রিনশট</span><span class="en">Screenshots</span></p>
+        <h2><span class="bn">এক নজরে অ্যাপটি</span><span class="en">See it in action</span></h2>
+      </div>
+      <div class="strip" id="strip" tabindex="0" aria-label="Screenshots">
+        <figure><div class="frame"><img src="screenshots/01-home.png" alt="হোম স্ক্রিন — Home screen" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">আজকের নিসাব এক নজরে</span><span class="en">Today's nisab at a glance</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/02-cash.png" alt="নগদ ও সঞ্চয় — Cash and savings" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">ধাপে ধাপে হিসাব</span><span class="en">Step by step</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/03-gold.png" alt="সোনা ও রূপা — Gold and silver" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">ভরি-আনা-রতিতে সোনা</span><span class="en">Gold in vori-ana-roti</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/04-result.png" alt="ফলাফল — Result" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">পরিষ্কার ফলাফল ও বিবরণ</span><span class="en">A clear result and breakdown</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/05-hadith.png" alt="হাদিস — Hadith" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">আরবি, অর্থ ও হাদিসের মান</span><span class="en">Arabic, meaning and grade</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/06-recipients.png" alt="যাকাত কারা পাবেন — Recipients" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">যাকাতের ৮টি খাত</span><span class="en">The eight recipients</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/07-livestock.png" alt="গবাদি পশু — Livestock" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">গবাদি পশুর যাকাত</span><span class="en">Zakat on livestock</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/08-home-english.png" alt="English home screen" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">এক ট্যাপে ইংরেজি</span><span class="en">English in one tap</span></figcaption></figure>
+        <figure><div class="frame"><img src="screenshots/10-home-dark.png" alt="ডার্ক মোড — Dark mode" width="600" height="1333" loading="lazy"></div><figcaption><span class="bn">ডার্ক মোড</span><span class="en">Dark mode</span></figcaption></figure>
+      </div>
+      <div class="strip-nav">
+        <button type="button" data-dir="-1" aria-label="Previous screenshots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button type="button" data-dir="1" aria-label="Next screenshots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker"><span class="bn">হিসাবের ভিত্তি</span><span class="en">How it calculates</span></p>
+        <h2><span class="bn">যে নিয়মে হিসাব হয়</span><span class="en">The rules behind the numbers</span></h2>
+        <p><span class="bn">সব সংখ্যা একটি আলাদা নিয়ম-ফাইলে, প্রতিটির পাশে সূত্র। কুরআন-হাদিসের লেখা কখনো হিসাবের সংখ্যা বদলায় না।</span><span class="en">Every figure lives in one rules file with its scholarly source. The scripture text never feeds the numbers.</span></p>
+      </div>
+      <div class="rules">
+        <div class="rule">
+          <h3><span class="bn">সোনার নিসাব</span><span class="en">Gold nisab</span></h3>
+          <div class="big"><span class="bn">৭.৫ <span class="unit">ভরি</span></span><span class="en">87.48 <span class="unit">g</span></span></div>
+          <p><span class="bn">৮৭.৪৮ গ্রাম · শুধু সোনা থাকলে এটি ধরা হয়</span><span class="en">7.5 vori · used when you own only gold</span></p>
+        </div>
+        <div class="rule">
+          <h3><span class="bn">রূপার নিসাব</span><span class="en">Silver nisab</span></h3>
+          <div class="big"><span class="bn">৫২.৫ <span class="unit">ভরি</span></span><span class="en">612.36 <span class="unit">g</span></span></div>
+          <p><span class="bn">৬১২.৩৬ গ্রাম · নগদ বা মিশ্র সম্পদে এটি ধরা হয়</span><span class="en">52.5 vori · used for cash or mixed wealth</span></p>
+        </div>
+        <div class="rule">
+          <h3><span class="bn">যাকাতের হার</span><span class="en">Rate</span></h3>
+          <div class="big"><span class="bn">২.৫%</span><span class="en">2.5%</span></div>
+          <p><span class="bn">হিজরি বছরে; ইংরেজি বছর ধরলে ২.৫৭৭%</span><span class="en">Per lunar year; 2.577% on a solar year</span></p>
+        </div>
+      </div>
+      <p class="note">
+        <span class="bn">নিসাবের পরিমাণ: সুনানে আবু দাউদ ১৫৭৩। কুরআনের আরবি Tanzil থেকে, অনুবাদ মুহিউদ্দীন খান ও Saheeh International; হাদিসের আরবি, নম্বর ও মান sunnah.com থেকে — কোনো শব্দ বদলানো হয়নি, প্রতিটি ফাইল চেকসাম দিয়ে যাচাই করা।</span>
+        <span class="en">Nisab amounts: Sunan Abi Dawud 1573. Quran text from Tanzil with the Muhiuddin Khan and Saheeh International translations; hadith Arabic, numbering and grades from sunnah.com. Nothing is reworded, and every file is checksum-verified.</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="install" class="shots-band">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker"><span class="bn">ইনস্টল করার নিয়ম</span><span class="en">Install</span></p>
+        <h2><span class="bn">চার ধাপে ফোনে নিন</span><span class="en">Four steps to install</span></h2>
+      </div>
+      <div class="install">
+        <ol class="steps">
+          <li><span class="bn">ওপরের <b>ডাউনলোড করুন</b> বোতাম চাপুন — <code>.apk</code> ফাইলটি ফোনে নেমে আসবে।</span><span class="en">Tap <b>Download the app</b>. The <code>.apk</code> file downloads to your phone.</span></li>
+          <li><span class="bn">ডাউনলোড শেষ হলে ফাইলটি খুলুন।</span><span class="en">Open the file when the download finishes.</span></li>
+          <li><span class="bn">ফোন "অজানা উৎস থেকে ইনস্টল" করার অনুমতি চাইলে সেটিংস থেকে অনুমতি দিন, তারপর ফিরে এসে <b>ইনস্টল</b> চাপুন।</span><span class="en">If Android asks, allow <b>Install unknown apps</b> for your browser, then come back and tap <b>Install</b>.</span></li>
+          <li><span class="bn">"যাকাত ক্যালকুলেটর" খুলুন। নতুন সংস্করণ এলে অ্যাপই জানিয়ে দেবে।</span><span class="en">Open Zakat Calculator. The app tells you when a new version is out.</span></li>
+        </ol>
+        <div class="panel">
+          <h3><span class="bn">Play Protect সতর্ক করলে</span><span class="en">If Play Protect shows a warning</span></h3>
+          <p><span class="bn">অ্যাপটি এখনো Google Play-তে নেই, তাই নতুন অ্যাপ হিসেবে Play Protect মাঝে মাঝে সতর্ক করতে পারে। অ্যাপটি শুধু ইন্টারনেটের অনুমতি নেয়, আর কোনো অনুমতি নয়। <b>আরও বিস্তারিত › তবুও ইনস্টল করুন</b> চেপে ইনস্টল করতে পারেন।</span><span class="en">The app isn't on Google Play yet, so Play Protect may not recognise it. It asks for internet access only, nothing else. Tap <b>More details › Install anyway</b> to continue.</span></p>
+          <p><span class="bn">ফাইলটি আসল কি না মিলিয়ে নিতে সর্বশেষ সংস্করণের SHA-256:</span><span class="en">To check the file is genuine, the latest version's SHA-256 is:</span>
+            <code class="sha" data-sha>167d5a6ea884a8406eb9a0176d8762c9f7d3a7fa07169e65533b3599fbbc9249</code></p>
+          <p><span class="bn">আগের ওয়েবভিউ সংস্করণ (v1) থাকলে আগে সেটি আনইনস্টল করে নিন।</span><span class="en">If you have the old web-view version (v1), uninstall it first.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy-sec">
+    <div class="wrap">
+      <div class="privacy" id="privacy">
+        <div>
+          <p class="kicker" style="color: var(--gold-soft)"><span class="bn">গোপনীয়তা</span><span class="en">Privacy</span></p>
+          <h2><span class="bn">আপনার হিসাব শুধু আপনার ফোনে</span><span class="en">Your numbers stay on your phone</span></h2>
+          <p><span class="bn">কোনো অ্যাকাউন্ট নেই, বিজ্ঞাপন নেই, ট্র্যাকিং নেই। বিস্তারিত পড়ুন <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/blob/main/PRIVACY.md">গোপনীয়তা নীতিতে</a>।</span><span class="en">No accounts, no ads, no tracking. Read the full <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/blob/main/PRIVACY.md">privacy policy</a>.</span></p>
+        </div>
+        <ul class="ticks">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg><span><span class="bn">টাকার পরিমাণ ও সোনার ওজন ফোনে এনক্রিপ্ট করে রাখা হয় (AES-256, Android Keystore)।</span><span class="en">Amounts and gold weights are encrypted on the phone (AES-256, Android Keystore).</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg><span><span class="bn">শুধু একটি অনুমতি: ইন্টারনেট, সোনা-রূপার দাম আর আপডেট দেখার জন্য।</span><span class="en">One permission only: internet, for gold and silver rates and update checks.</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg><span><span class="bn">ক্লাউড ব্যাকআপে কিছু যায় না। চাইলে সব তথ্য এক্সপোর্ট বা স্থায়ীভাবে মুছে ফেলুন।</span><span class="en">Nothing goes to cloud backup. Export everything or delete it permanently whenever you like.</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg><span><span class="bn">সব সংযোগ HTTPS-এ; কোনো অনুরোধে আপনার তথ্য পাঠানো হয় না।</span><span class="en">Every connection uses HTTPS, and no request carries your data.</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2><span class="bn">এ বছরের যাকাত হিসাব করে ফেলুন</span><span class="en">Work out this year's zakat</span></h2>
+      <p><span class="bn">বিনামূল্যে, বিজ্ঞাপন ছাড়া। আল্লাহ আমাদের সম্পদকে পবিত্র ও বরকতময় করুন।</span><span class="en">Free and ad-free. May Allah purify and bless our wealth.</span></p>
+      <div class="cta">
+        <a class="btn-dl" href="https://github.com/abdullah-al-faahim/zakat-calculator-app/releases/latest/download/zakat-calculator.apk">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.69-.4l-1.86 3.22a11.4 11.4 0 0 0-9.78 0L5.25 5.9a.4.4 0 1 0-.69.4L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52ZM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"/></svg>
+          <span>
+            <small><span class="bn">অ্যান্ড্রয়েডের জন্য</span><span class="en">Get it for Android</span></small>
+            <strong><span class="bn">ডাউনলোড করুন</span><span class="en">Download the app</span></strong>
+          </span>
+        </a>
+        <a class="btn-ghost" href="https://github.com/abdullah-al-faahim/zakat-calculator-app/releases"><span class="bn">সব রিলিজ দেখুন</span><span class="en">All releases</span></a>
+      </div>
+      <p class="disclaimer">
+        <span class="bn">⚠️ এই অ্যাপ হিসাবের সহায়ক, ফতোয়া নয়। যৌথ ব্যবসা, উত্তরাধিকার বা প্রতিষ্ঠানের যাকাতের মতো জটিল বিষয়ে একজন বিজ্ঞ মুফতির পরামর্শ নিন।</span>
+        <span class="en">⚠️ This app is a calculation aid, not a fatwa. For complex cases such as joint businesses, inheritance or company zakat, please consult a qualified mufti.</span>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><span class="bn">তৈরি করেছেন</span><span class="en">Made by</span> <b>Abdullah Al Fahim</b></span>
+    <nav aria-label="Links">
+      <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/releases"><span class="bn">রিলিজ</span><span class="en">Releases</span></a>
+      <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/blob/main/PRIVACY.md"><span class="bn">গোপনীয়তা নীতি</span><span class="en">Privacy policy</span></a>
+      <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/blob/main/SECURITY.md"><span class="bn">নিরাপত্তা</span><span class="en">Security</span></a>
+      <a href="https://github.com/abdullah-al-faahim/zakat-calculator-app/issues/new"><span class="bn">সমস্যা জানান</span><span class="en">Report a problem</span></a>
+    </nav>
+  </div>
+</footer>
+
+<script src="zakat.js"></script>
+<script src="calc.js"></script>
+<script>
+(function () {
+  var d = document.documentElement;
+  var TITLES = { bn: 'যাকাত ক্যালকুলেটর — অ্যান্ড্রয়েড অ্যাপ', en: 'Zakat Calculator — Android app' };
+  var BN = '০১২৩৪৫৬৭৮৯';
+  function digits(s) { return d.lang === 'bn' ? String(s).replace(/\d/g, function (c) { return BN[c]; }) : String(s); }
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  // Language
+  var release = { version: '3.0.1', mb: '1.8', sha: null };
+  function setLang(lang) {
+    d.lang = lang;
+    document.title = TITLES[lang];
+    document.querySelectorAll('.seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+    renderRelease();
+    document.dispatchEvent(new CustomEvent('zc-lang'));
+  }
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.dataset.lang); save('zc-lang', b.dataset.lang); });
+  });
+
+  // Theme: follows the phone unless the visitor picks one.
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function isDark() { return d.dataset.theme ? d.dataset.theme === 'dark' : mq.matches; }
+  function paintTheme() { d.classList.toggle('is-dark', isDark()); }
+  document.getElementById('theme').addEventListener('click', function () {
+    d.dataset.theme = isDark() ? 'light' : 'dark';
+    save('zc-theme', d.dataset.theme);
+    paintTheme();
+  });
+  if (mq.addEventListener) mq.addEventListener('change', paintTheme);
+  paintTheme();
+
+  // Screenshot strip arrows
+  var strip = document.getElementById('strip');
+  document.querySelectorAll('.strip-nav button').forEach(function (b) {
+    b.addEventListener('click', function () { strip.scrollBy({ left: Number(b.dataset.dir) * strip.clientWidth * 0.8, behavior: 'smooth' }); });
+  });
+
+  // Latest release details (falls back to the static text above).
+  function renderRelease() {
+    if (!release) return;
+    document.querySelectorAll('[data-ver]').forEach(function (e) { e.textContent = digits(release.version); });
+    if (release.mb) {
+      document.querySelectorAll('[data-size]').forEach(function (e) {
+        e.textContent = '~' + digits(release.mb) + (d.lang === 'bn' ? ' এমবি' : ' MB');
+      });
+    }
+    if (release.sha) document.querySelectorAll('[data-sha]').forEach(function (e) { e.textContent = release.sha; });
+  }
+  fetch('https://api.github.com/repos/abdullah-al-faahim/zakat-calculator-app/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (j) {
+      var apk = (j.assets || []).filter(function (a) { return /\.apk$/.test(a.name); })[0];
+      var sha = (String(j.body || '').match(/\b[0-9a-f]{64}\b/) || [])[0];
+      var version = String(j.tag_name || '').replace(/^v/, '');
+      if (!/^\d+(\.\d+)*$/.test(version)) return;
+      release = { version: version, mb: apk ? (apk.size / 1048576).toFixed(1) : null, sha: sha || null };
+      renderRelease();
+    })
+    .catch(function () {});
+
+  setLang(d.lang === 'en' ? 'en' : 'bn');
+})();
+</script>
+</body>
+</html>
