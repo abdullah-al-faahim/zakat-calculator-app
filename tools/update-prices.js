@@ -83,11 +83,15 @@ async function main() {
     console.log('prices.json OK (' + previous.date + ')');
     return;
   }
-  var res = await fetch(PAGE_URL, { headers: { 'User-Agent': 'ZakatCalculator-PriceBot (+https://github.com/abdullah-al-faahim/zakat-calculator-app)' }, redirect: 'follow' });
-  if (!res.ok) {
-    var body = (await res.text()).replace(/\s+/g, ' ').slice(0, 160);
-    throw new Error('HTTP ' + res.status + ' (server: ' + res.headers.get('server') + ', cf-ray: ' + res.headers.get('cf-ray') + ') ' + body);
-  }
+  var res;
+  try {
+    res = await fetch(PAGE_URL, {
+      headers: { 'User-Agent': 'ZakatCalculator-PriceBot (+https://github.com/abdullah-al-faahim/zakat-calculator-app)' }, redirect: 'follow' });
+  } catch (e) { return unreachable(previous, e.message); }
+  // BAJUS sits behind Cloudflare, which challenges data-centre addresses such as GitHub's runners.
+  // That is not an error while the saved rates are recent; it fails only once they go stale.
+  if (res.status === 403 || res.status === 503) return unreachable(previous, 'HTTP ' + res.status + ' (' + res.headers.get('server') + ')');
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   var html = await res.text();
   if (html.length > 2 * 1024 * 1024) throw new Error('page too large');
   var next = validate(parse(html, previous), todayInDhaka());
@@ -97,6 +101,16 @@ async function main() {
   next.checkedAt = new Date().toISOString();
   fs.writeFileSync(OUT, JSON.stringify(next, null, 2) + '\n');
   console.log('updated to ' + next.date + ': 22K gold ' + next.GOLD.K22 + ', 22K silver ' + next.SILVER.K22);
+}
+
+var STALE_AFTER_DAYS = 3;
+function unreachable(previous, why) {
+  var age = previous ? (Date.parse(todayInDhaka()) - Date.parse(previous.date)) / 86400000 : Infinity;
+  if (age <= STALE_AFTER_DAYS) {
+    console.log('::warning::BAJUS not reachable from here (' + why + '); keeping rates of ' + previous.date);
+    return;
+  }
+  throw new Error('BAJUS not reachable (' + why + ') and saved rates are ' + age + ' days old');
 }
 
 module.exports = { parse: parse, validate: validate, toIsoDate: toIsoDate };
