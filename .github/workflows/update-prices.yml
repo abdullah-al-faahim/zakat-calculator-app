@@ -1,9 +1,9 @@
 name: Update gold and silver prices
 
-# BAJUS publishes new rates during the Bangladesh day; check at 10:00, 16:00 and 22:00 Dhaka time.
+# Not scheduled: bajus.org is behind Cloudflare, which blocks GitHub's runners, so a scheduled
+# fetch can never succeed. Prices are updated by running tools/update-prices.js from a normal
+# connection and pushing prices.json. This workflow tests every push and can be run by hand.
 on:
-  schedule:
-    - cron: "0 4,10,16 * * *"
   workflow_dispatch:
   push:
     paths:

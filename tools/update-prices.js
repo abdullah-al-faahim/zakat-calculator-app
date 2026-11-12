@@ -89,7 +89,6 @@ async function main() {
       headers: { 'User-Agent': 'ZakatCalculator-PriceBot (+https://github.com/abdullah-al-faahim/zakat-calculator-app)' }, redirect: 'follow' });
   } catch (e) { return unreachable(previous, e.message); }
   // BAJUS sits behind Cloudflare, which challenges data-centre addresses such as GitHub's runners.
-  // That is not an error while the saved rates are recent; it fails only once they go stale.
   if (res.status === 403 || res.status === 503) return unreachable(previous, 'HTTP ' + res.status + ' (' + res.headers.get('server') + ')');
   if (!res.ok) throw new Error('HTTP ' + res.status);
   var html = await res.text();
@@ -103,14 +102,10 @@ async function main() {
   console.log('updated to ' + next.date + ': 22K gold ' + next.GOLD.K22 + ', 22K silver ' + next.SILVER.K22);
 }
 
-var STALE_AFTER_DAYS = 3;
+// Being blocked is expected on GitHub's runners, so it is a warning, never a failure.
+// The website shows the rate date, and ignores rates older than 45 days.
 function unreachable(previous, why) {
-  var age = previous ? (Date.parse(todayInDhaka()) - Date.parse(previous.date)) / 86400000 : Infinity;
-  if (age <= STALE_AFTER_DAYS) {
-    console.log('::warning::BAJUS not reachable from here (' + why + '); keeping rates of ' + previous.date);
-    return;
-  }
-  throw new Error('BAJUS not reachable (' + why + ') and saved rates are ' + age + ' days old');
+  console.log('::warning::BAJUS not reachable from here (' + why + '); keeping rates of ' + (previous ? previous.date : 'the app bundle'));
 }
 
 module.exports = { parse: parse, validate: validate, toIsoDate: toIsoDate };
